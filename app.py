@@ -155,7 +155,7 @@ with gr.Blocks(css=custom_css) as demo:
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
     
     tmp = gr.Textbox(visible=True, value="") 
-    chat_history = gr.Chatbot(placeholder="<strong>Your Personal Yes-Man</strong><br>Ask Me Anything")
+    chat_history = gr.Chatbot(label="Chat")
 
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
     
