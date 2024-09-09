@@ -86,6 +86,12 @@ def cancel_inference():
     global stop_inference
     stop_inference = True
 
+def vote(data: gr.LikeData):
+    if data.liked:
+        print("You upvoted this response: " + data.value["value"])
+    else:
+        print("You downvoted this response: " + data.value["value"])
+
 # Custom CSS for a fancy look
 custom_css = """
 #main-container {
@@ -130,6 +136,7 @@ custom_css = """
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
+    chatbot.like(vote, None, None)
 
     with gr.Row():
         system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
@@ -148,7 +155,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
-
+    chat_history.like(vote, None, None)
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
