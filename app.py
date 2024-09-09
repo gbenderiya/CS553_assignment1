@@ -136,7 +136,7 @@ custom_css = """
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
-    chatbot.like(vote, None, None)
+    
 
     with gr.Row():
         system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
