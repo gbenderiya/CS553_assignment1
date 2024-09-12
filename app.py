@@ -124,6 +124,8 @@ def vote(tmp, index_state, data: gr.LikeData):
             index_state.append(index_new)
     return f"Feedback: {data.value}; Index History (Dislike, Like): {data.index}; Liked: {data.liked}", index_state
 
+def update_sys_msg(sys_msg, persona):
+    return personas.get(persona, "You are a friendly and approachable chatbot.")
 
 # Custom CSS for a fancy look
 custom_css = """
@@ -172,18 +174,19 @@ with gr.Blocks(css=custom_css) as demo:
     
 
     with gr.Row():
-        system_message = gr.Textbox(value="You are a friendly and approachable chatbot.", label="System message", interactive=True)
+        persona_dropdown = gr.Dropdown(choices=list(personas.keys()), value="Friendly", label="Select Persona")
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
-        persona = gr.Dropdown(choices=list(personas.keys()), value="Friendly", label="Select Persona")
+        system_message = gr.Textbox(value=personas["Friendly"], label="System message", interactive=True)
+        persona_dropdown.change(update_sys_msg, inputs=persona_dropdown, outputs=system_message)
+
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature", visible=False) # hide it because of the dynamic temp
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
     
-    if system_message is None:
-        system_message = personas.get(persona, "You are a friendly and approachable chatbot.")
-        
+   
+
     tmp = gr.Textbox(visible=True, value="", label = 'Feedback Status') 
     chat_history = gr.Chatbot(label="Chat")
 
