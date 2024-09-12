@@ -10,12 +10,31 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
+def adjust_temperature(message: str) -> float:
+
+    """
+    Adjust the temperature dynamically based on the message content.
+    - Lower temperature for factual questions.
+    - Higher temperature for creative or brainstorming responses.
+    """
+    keywords_for_factual = ["what", "who", "when", "where", "explain", "define"]
+    keywords_for_creative = ["imagine", "brainstorm", "create", "idea", "suggest"]
+
+    # Lower temp for short or factual queries
+    if any(keyword in message.lower() for keyword in keywords_for_factual) or len(message.split()) < 5:
+        return 0.3  # Factual, concise
+    # Higher temp for open-ended or creative queries
+    elif any(keyword in message.lower() for keyword in keywords_for_creative) or len(message.split()) > 15:
+        return 0.9  # Creative, open-ended
+    
+    return 0.7 # Default temp for general queries
+
 def respond(
     message,
     history: list[tuple[str, str]],
     system_message="You are a friendly Chatbot.",
     max_tokens=512,
-    temperature=0.7,
+    temperature=None,
     top_p=0.95,
     use_local_model=False,
 ):
@@ -26,6 +45,8 @@ def respond(
     if history is None:
         history = []
 
+    dynamic_temperature = adjust_temperature(message) if temperature is None else temperature
+    
     if use_local_model:
         # local inference 
         messages = [{"role": "system", "content": system_message}]
@@ -40,7 +61,7 @@ def respond(
         for output in pipe(
             messages,
             max_new_tokens=max_tokens,
-            temperature=temperature,
+            temperature=dynamic_temperature,
             do_sample=True,
             top_p=top_p,
         ):
@@ -67,7 +88,7 @@ def respond(
             messages,
             max_tokens=max_tokens,
             stream=True,
-            temperature=temperature,
+            temperature=dynamic_temperature,
             top_p=top_p,
         ):
             if stop_inference:
@@ -96,7 +117,7 @@ def vote(tmp, index_state, data: gr.LikeData):
             return "Your feedback is already saved", index_state
         else:
             index_state.append(index_new)
-    return f"Feedback: {data.value}; Index: {data.index}; Liked: {data.liked}; Votes: {index_state}", index_state
+    return f"Feedback: {data.value}; Index History (Like, Dislike): {data.index}; Liked: {data.liked}", index_state
 
 
 # Custom CSS for a fancy look
@@ -141,8 +162,8 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
-    gr.Markdown("AI chatbot using customizable settings below.  kkkkk")
+    gr.Markdown("<h1 style='text-align: center;'>🌟 AI Chatbot 🌟</h1>")
+    gr.Markdown("AI chatbot using customizable settings that duplicated from TA.")
     
 
     with gr.Row():
@@ -154,7 +175,7 @@ with gr.Blocks(css=custom_css) as demo:
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
     
-    tmp = gr.Textbox(visible=True, value="") 
+    tmp = gr.Textbox(visible=True, value="", label = 'Feedback Status') 
     chat_history = gr.Chatbot(label="Chat")
 
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
