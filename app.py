@@ -181,7 +181,9 @@ with gr.Blocks(css=custom_css) as demo:
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature", visible=False) # hide it because of the dynamic temp
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
     
-    system_message = personas.get(persona, "You are a friendly and approachable chatbot.")
+    if system_message is None:
+        system_message = personas.get(persona, "You are a friendly and approachable chatbot.")
+        
     tmp = gr.Textbox(visible=True, value="", label = 'Feedback Status') 
     chat_history = gr.Chatbot(label="Chat")
 
