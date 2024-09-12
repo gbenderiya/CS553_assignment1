@@ -179,7 +179,6 @@ with gr.Blocks(css=custom_css) as demo:
         system_message = gr.Textbox(value=personas["Friendly"], label="System message", interactive=True)
         persona_dropdown.change(update_sys_msg, inputs=persona_dropdown, outputs=system_message)
 
-
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature", visible=False) # hide it because of the dynamic temp
