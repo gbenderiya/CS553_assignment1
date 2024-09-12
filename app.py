@@ -124,7 +124,7 @@ def vote(tmp, index_state, data: gr.LikeData):
             index_state.append(index_new)
     return f"Feedback: {data.value}; Index History (Dislike, Like): {data.index}; Liked: {data.liked}", index_state
 
-def update_sys_msg(sys_msg, persona):
+def update_sys_msg(persona):
     return personas.get(persona, "You are a friendly and approachable chatbot.")
 
 # Custom CSS for a fancy look
@@ -195,7 +195,7 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
     index_state = gr.State(value=[])
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model, persona], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model, persona_dropdown], chat_history)
     chat_history.like(vote, [tmp, index_state], [tmp, index_state])
     cancel_button.click(cancel_inference)
 
