@@ -124,7 +124,7 @@ def vote(tmp, index_state, data: gr.LikeData):
             return "Your feedback is already saved", index_state
         else:
             index_state.append(index_new)
-    return f"Feedback: {data.value}; Index History (Like, Dislike): {data.index}; Liked: {data.liked}", index_state
+    return f"Feedback: {data.value}; Index History (Dislike, Like): {data.index}; Liked: {data.liked}", index_state
 
 
 # Custom CSS for a fancy look
@@ -191,7 +191,7 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
     index_state = gr.State(value=[])
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model, persona], chat_history)
     chat_history.like(vote, [tmp, index_state], [tmp, index_state])
     cancel_button.click(cancel_inference)
 
