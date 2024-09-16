@@ -169,13 +169,13 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🌟 AI Chatbot 🌟</h1>")
+    gr.Markdown("<h1 style='text-align: center;'>🐈 Customizable AI Chatbot with Dynamic Personas 🐶</h1>")
     gr.Markdown("AI chatbot using customizable settings that duplicated from TA.")
     
 
     with gr.Row():
         persona_dropdown = gr.Dropdown(choices=list(personas.keys()), value="Friendly", label="Select Persona")
-        use_local_model = gr.Checkbox(label="Use Local Model", value=False)
+        use_local_model = gr.Checkbox(label="Use Local Model", value=False, visible = False) # since it's only for API
         system_message = gr.Textbox(value=personas["Friendly"], label="System message", interactive=True)
         persona_dropdown.change(update_sys_msg, inputs=persona_dropdown, outputs=system_message)
 
