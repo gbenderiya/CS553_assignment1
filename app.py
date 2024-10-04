@@ -175,7 +175,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     with gr.Row():
         persona_dropdown = gr.Dropdown(choices=list(personas.keys()), value="Friendly", label="Select Persona")
-        use_local_model = gr.Checkbox(label="Use Local Model", value=False, visible = False) # since it's only for API
+        use_local_model = gr.Checkbox(label="Use Local Model", value=False) 
         system_message = gr.Textbox(value=personas["Friendly"], label="System message", interactive=True)
         persona_dropdown.change(update_sys_msg, inputs=persona_dropdown, outputs=system_message)
 
