@@ -74,7 +74,7 @@ git clone $REPO_URL
 # Step 13: Copy the repository to the project folder on the server
 echo "Copying the project files to the server project directory..."
 scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no -r $PROJECT_DIR student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
-ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/CS553_assignment1 || echo 'Directory not found'"
+ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
 
 # Final message
 echo "Deployment completed successfully!"
