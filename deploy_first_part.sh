@@ -3,10 +3,10 @@
 # Variables
 PORT=22008
 MACHINE="paffenroth-23.dyn.wpi.edu"
-STUDENT_ADMIN_KEY_PATH="C:/Users/ganer/Documents/GitHub/MLOPs/Keys"
-SSH_PATH="C:/Users/ganer/"
-REPO_URL="https://github.com/gbenderiya/CS553_assignment1"
-PROJECT_DIR="CS553_assignment1"
+STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/ganer/Documents/github/mlops/keys"
+SSH_PATH="/mnt/c/Users/ganer/"
+REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git" #"https://github.com/gbenderiya/CS553_assignment1" 
+PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
 TMP_DIR="tmp"
 REMOTE_PROJECT_PATH="~/project"
 
@@ -21,7 +21,12 @@ rm -rf $TMP_DIR
 # Step 2: Set up temporary directory and copy keys
 echo "Setting up temporary directory and copying keys..."
 mkdir $TMP_DIR
-cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key*" $TMP_DIR
+echo "Listing keys directory:"
+ls ${STUDENT_ADMIN_KEY_PATH}
+
+echo "Attempting to copy keys:"
+cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" $TMP_DIR
+cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key.pub" $TMP_DIR
 
 # Step 3: Set permissions for the key
 cd $TMP_DIR
@@ -69,11 +74,11 @@ ssh -i ${TMP_DIR}/my_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${
 
 # Step 12: Clone the repository locally
 echo "Cloning the repository to local machine..."
-git clone $REPO_URL
+git clone ${REPO_URL}
 
 # Step 13: Copy the repository to the project folder on the server
 echo "Copying the project files to the server project directory..."
-scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no -r $PROJECT_DIR student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
+scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no -r ${PROJECT_DIR} student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
 
 # Final message
