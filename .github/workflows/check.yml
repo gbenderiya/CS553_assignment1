@@ -1,0 +1,22 @@
+name: Check connection to VM
+
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Checks out the repository code
+
+      - name: SSH into VM
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: paffenroth-23.dyn.wpi.edu  
+          username: student-admin  
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  
+          port: 22008  
+          script: |
+            echo "Successfully connected!"  # Check if SSH connection is successful
