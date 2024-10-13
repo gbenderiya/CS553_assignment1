@@ -5,8 +5,8 @@ PORT=22008
 MACHINE="paffenroth-23.dyn.wpi.edu"
 STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/ganer/Documents/github/mlops/keys"
 SSH_PATH="/mnt/c/Users/ganer/"
-REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git" #"https://github.com/gbenderiya/CS553_assignment1" 
-PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
+REPO_URL="https://github.com/gbenderiya/CS553_assignment1" 
+PROJECT_DIR="CS553_assignment1"
 TMP_DIR="tmp"
 REMOTE_PROJECT_PATH="~/project"
 
