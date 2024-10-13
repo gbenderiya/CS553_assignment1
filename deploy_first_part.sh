@@ -3,8 +3,8 @@
 # Variables
 PORT=22008
 MACHINE="paffenroth-23.dyn.wpi.edu"
-STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/ganer/Documents/github/mlops/keys"
-SSH_PATH="/mnt/c/Users/ganer/"
+STUDENT_ADMIN_KEY_PATH="./Keys"
+SSH_PATH="~/.ssh"
 REPO_URL="https://github.com/gbenderiya/CS553_assignment1" 
 PROJECT_DIR="CS553_assignment1"
 TMP_DIR="tmp"
