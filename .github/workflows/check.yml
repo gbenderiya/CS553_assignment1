@@ -14,12 +14,13 @@ jobs:
       - name: Set up SSH Keys
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
-          chmod 600 ~/.ssh/student-admin_key
-
+          cp CS553_assignment1/student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
+          chmod 600 ~/.ssh/student-admin_key.pem  # chmod 600 ~/.ssh/student-admin_key
+          # echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
+          
       - name: Set up SSH Keys
         run: |
-          ssh -i student-admin_key.pem ec2-user@3.142.84.124 "echo 'Successfully connected!'"
+          ssh -i ~/.ssh/student-admin_key.pem ec2-user@3.142.84.124 "echo 'Successfully connected!'"
           # host: 3.142.84.124 #paffenroth-23.dyn.wpi.edu  
           # username: ec2-user #student-admin  
           # key: ./student-admin_key.pem #${{ secrets.STUDENT_ADMIN_KEY }}  
