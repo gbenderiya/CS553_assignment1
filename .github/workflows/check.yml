@@ -14,12 +14,12 @@ jobs:
       - name: Set up SSH Keys
         run: |
           mkdir -p ~/.ssh
-          cp student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
-          chmod 600 ~/.ssh/student-admin_key.pem  # Set correct permissions
+          cp student-admin_key.pem ~/.ssh/student-admin_key.pem 
+          chmod 600 ~/.ssh/student-admin_key.pem  
 
       - name: Add VM to SSH known hosts
         run: |
-          ssh-keyscan -H 3.142.84.124 >> ~/.ssh/known_hosts  # Adds the VM host key to known hosts
+          ssh-keyscan -H 3.142.84.124 >> ~/.ssh/known_hosts 
 
       - name: Check SSH connection
         run: |
