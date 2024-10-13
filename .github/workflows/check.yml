@@ -18,11 +18,11 @@ jobs:
           chmod 600 ~/.ssh/student-admin_key
 
       - name: Set up SSH Keys
-        run: 
-        with:
-          host: 3.142.84.124 #paffenroth-23.dyn.wpi.edu  
-          username: ec2-user #student-admin  
-          key: ./student-admin_key.pem #${{ secrets.STUDENT_ADMIN_KEY }}  
-          port: 22 #22008  
-          script: |
-             echo "Successfully connected!"  # Check if SSH connection is successful
+        run: |
+          ssh -i ./student-admin_key.pem -p 22 ec2-user@3.142.84.124 "echo 'Successfully connected!'"
+          # host: 3.142.84.124 #paffenroth-23.dyn.wpi.edu  
+          # username: ec2-user #student-admin  
+          # key: ./student-admin_key.pem #${{ secrets.STUDENT_ADMIN_KEY }}  
+          # port: 22 #22008  
+          # script: |
+             #echo "Successfully connected!"  # Check if SSH connection is successful
