@@ -11,12 +11,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2  # Checks out the repository code
 
-      - name: SSH into VM
-        uses: appleboy/ssh-action@v0.1.5
+      - name: Set up SSH Keys
+        run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
+        chmod 600 ~/.ssh/student-admin_key
+
+      - name: Set up SSH Keys
+        run: 
         with:
           host: 3.142.84.124 #paffenroth-23.dyn.wpi.edu  
           username: ec2-user #student-admin  
-          key: ./student-admin_key.pem #${{ secrets.SSH_PRIVATE_KEY }}  
+          key: ./student-admin_key.pem #${{ secrets.STUDENT_ADMIN_KEY }}  
           port: 22 #22008  
           script: |
              echo "Successfully connected!"  # Check if SSH connection is successful
