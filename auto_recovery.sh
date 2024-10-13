@@ -3,7 +3,7 @@
 # Variables
 PORT=22008
 MACHINE="paffenroth-23.dyn.wpi.edu"
-STUDENT_ADMIN_KEY_PATH="./keys" # Update this when checking the keys in the correct location
+STUDENT_ADMIN_KEY_PATH="./Keys" # Update this when checking the keys in the correct location
 PROJECT_DIR="CS553_assignment1"
 REMOTE_PROJECT_PATH="~/project/$PROJECT_DIR"
 SSH_PATH="~/.ssh"
