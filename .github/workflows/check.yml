@@ -14,7 +14,7 @@ jobs:
       - name: Set up SSH Keys
         run: |
           mkdir -p ~/.ssh
-          cp CS553_assignment1/student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
+          cp student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
           chmod 600 ~/.ssh/student-admin_key.pem  # chmod 600 ~/.ssh/student-admin_key
           # echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
           
