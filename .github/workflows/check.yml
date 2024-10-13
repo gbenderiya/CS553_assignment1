@@ -13,10 +13,10 @@ jobs:
 
       - name: Set up SSH Keys
         run: |
-          mkdir -p ~/.ssh
-          cp student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
-          chmod 600 ~/.ssh/student-admin_key.pem  # chmod 600 ~/.ssh/student-admin_key
-          # echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
+           mkdir -p ~/.ssh
+           cp student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
+           chmod 600 ~/.ssh/student-admin_key.pem  # chmod 600 ~/.ssh/student-admin_key
+           # echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
           
       - name: Set up SSH Keys
         run: |
