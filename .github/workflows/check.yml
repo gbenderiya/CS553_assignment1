@@ -13,17 +13,14 @@ jobs:
 
       - name: Set up SSH Keys
         run: |
-           mkdir -p ~/.ssh
-           cp student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
-           chmod 600 ~/.ssh/student-admin_key.pem  # chmod 600 ~/.ssh/student-admin_key
-           # echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
-          
-      - name: Set up SSH Keys
+          mkdir -p ~/.ssh
+          cp student-admin_key.pem ~/.ssh/student-admin_key.pem  # Copy key from repository
+          chmod 600 ~/.ssh/student-admin_key.pem  # Set correct permissions
+
+      - name: Add VM to SSH known hosts
+        run: |
+          ssh-keyscan -H 3.142.84.124 >> ~/.ssh/known_hosts  # Adds the VM host key to known hosts
+
+      - name: Check SSH connection
         run: |
           ssh -i ~/.ssh/student-admin_key.pem ec2-user@3.142.84.124 "echo 'Successfully connected!'"
-          # host: 3.142.84.124 #paffenroth-23.dyn.wpi.edu  
-          # username: ec2-user #student-admin  
-          # key: ./student-admin_key.pem #${{ secrets.STUDENT_ADMIN_KEY }}  
-          # port: 22 #22008  
-          # script: |
-             #echo "Successfully connected!"  # Check if SSH connection is successful
