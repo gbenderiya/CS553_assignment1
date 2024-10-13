@@ -19,7 +19,7 @@ jobs:
 
       - name: Set up SSH Keys
         run: |
-          ssh -i ./student-admin_key.pem -p 22 ec2-user@3.142.84.124 "echo 'Successfully connected!'"
+          ssh -i student-admin_key.pem -p 22 ec2-user@3.142.84.124 "echo 'Successfully connected!'"
           # host: 3.142.84.124 #paffenroth-23.dyn.wpi.edu  
           # username: ec2-user #student-admin  
           # key: ./student-admin_key.pem #${{ secrets.STUDENT_ADMIN_KEY }}  
