@@ -13,9 +13,9 @@ jobs:
 
       - name: Set up SSH Keys
         run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
-        chmod 600 ~/.ssh/student-admin_key
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STUDENT_ADMIN_KEY }}" > ~/.ssh/student-admin_key
+          chmod 600 ~/.ssh/student-admin_key
 
       - name: Set up SSH Keys
         run: 
