@@ -5,6 +5,8 @@ import torch
 from transformers import pipeline
 from starlette.requests import Request  # Correct import
 from prometheus_client import start_http_server, Gauge, Counter, Histogram, Summary
+import time
+import random
 
 # Allow arbitrary types in Pydantic models
 class ConfiguredBaseModel(BaseModel):
@@ -58,64 +60,81 @@ def respond(
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
-
-    # Initialize history if it's None
-    if history is None:
-        history = []
-
-    dynamic_temperature = adjust_temperature(message) if temperature is None else temperature
+        
+    REQUEST_COUNTER.inc()  # Increment request counter
+    request_timer = REQUEST_DURATION.time()  # Start timing the request
     
-    if use_local_model:
-        # Local inference
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
+    time.sleep(random.uniform(0.1, 0.3))  # Simulate processing delay
+    RESPONCE_LATENCY.observe(time.time() - request_timer)
+    MEMORY_USAGE.set(random.uniform(50, 150))  # Simulate memory usage in MB
+    
+    # Initialize history if it's None
+    try:
+        if history is None:
+            history = []
 
-        response = ""
-        for output in pipe(
-            messages,
-            max_new_tokens=max_tokens,
-            temperature=dynamic_temperature,
-            do_sample=True,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = output['generated_text'][-1]['content']
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
+        dynamic_temperature = adjust_temperature(message) if temperature is None else temperature
+    
+        if use_local_model:
+            # Local inference
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
 
-    else:
-        # API-based inference
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
+            response = ""
+            for output in pipe(
+                messages,
+                max_new_tokens=max_tokens,
+                temperature=dynamic_temperature,
+                do_sample=True,
+                top_p=top_p,
+            ):
+                if stop_inference:
+                    response = "Inference cancelled."
+                    yield history + [(message, response)]
+                    return
+                token = output['generated_text'][-1]['content']
+                response += token
+                yield history + [(message, response)]  # Yield history + new response
 
-        response = ""
-        for message_chunk in client.chat_completion(
-            messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=dynamic_temperature,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = message_chunk.choices[0].delta.content
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
+        else:
+            # API-based inference
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
+
+            response = ""
+            for message_chunk in client.chat_completion(
+                messages,
+                max_tokens=max_tokens,
+                stream=True,
+                temperature=dynamic_temperature,
+                top_p=top_p,
+            ):
+                if stop_inference:
+                    response = "Inference cancelled."
+                    yield history + [(message, response)]
+                    return
+                token = message_chunk.choices[0].delta.content
+                response += token
+                yield history + [(message, response)]  # Yield history + new response
+        
+        SUCCESSFUL_REQUESTS.inc()  # Increment successful request counter
+    except Exception as e:
+        FAILED_REQUESTS.inc()  # Increment failed request counter
+        yield history + [(message, f"Error: {str(e)}")]
+    finally:
+        request_timer.observe_duration()  # Stop timing the request
+
+
 
 def cancel_inference():
     global stop_inference
@@ -206,4 +225,5 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
+    start_http_server(8000) 
     demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
