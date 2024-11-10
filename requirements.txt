@@ -6,3 +6,4 @@ accelerate==0.33.*
 pydantic==2.8.2
 pydantic-core==2.20.1
 fastapi==0.112.4
+prometheus_client==0.16.*

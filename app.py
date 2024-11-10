@@ -1,7 +1,22 @@
+from pydantic import BaseModel, ConfigDict
 import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+from starlette.requests import Request  # Correct import
+from prometheus_client import start_http_server, Gauge, Counter, Histogram, Summary
+
+# Allow arbitrary types in Pydantic models
+class ConfiguredBaseModel(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+# Prometheus metrics
+REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
+SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
+FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
+REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
+RESPONCE_LATENCY = Histogram('response_latency_seconds', 'Latency of HTTP requests')
+MEMORY_USAGE = Gauge('memory_usage_bytes', 'Memory usage of the application')
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
@@ -19,7 +34,6 @@ personas = {
 }
 
 def adjust_temperature(message: str) -> float:
-
     keywords_for_factual = ["what", "who", "when", "where", "explain", "define"]
     keywords_for_creative = ["imagine", "brainstorm", "create", "idea", "suggest"]
 
@@ -30,7 +44,7 @@ def adjust_temperature(message: str) -> float:
     elif any(keyword in message.lower() for keyword in keywords_for_creative) or len(message.split()) > 15:
         return 0.9  # Creative, open-ended
     
-    return 0.7 # Default temp for general queries
+    return 0.7  # Default temp for general queries
 
 def respond(
     message,
@@ -40,7 +54,7 @@ def respond(
     temperature=None,
     top_p=0.95,
     use_local_model=False,
-    persona = 'Friendly',
+    persona='Friendly',
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
@@ -49,11 +63,10 @@ def respond(
     if history is None:
         history = []
 
-    #if system_message is None:
     dynamic_temperature = adjust_temperature(message) if temperature is None else temperature
     
     if use_local_model:
-        # local inference 
+        # Local inference
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -79,7 +92,7 @@ def respond(
             yield history + [(message, response)]  # Yield history + new response
 
     else:
-        # API-based inference 
+        # API-based inference
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -100,13 +113,9 @@ def respond(
                 response = "Inference cancelled."
                 yield history + [(message, response)]
                 return
-            if stop_inference:
-                response = "Inference cancelled."
-                break
             token = message_chunk.choices[0].delta.content
             response += token
             yield history + [(message, response)]  # Yield history + new response
-
 
 def cancel_inference():
     global stop_inference
@@ -172,7 +181,6 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h1 style='text-align: center;'>🐈 Customizable AI Chatbot with Dynamic Personas 🐶</h1>")
     gr.Markdown("AI chatbot using customizable settings that duplicated from TA.")
     
-
     with gr.Row():
         persona_dropdown = gr.Dropdown(choices=list(personas.keys()), value="Friendly", label="Select Persona")
         use_local_model = gr.Checkbox(label="Use Local Model", value=False) 
@@ -181,18 +189,17 @@ with gr.Blocks(css=custom_css) as demo:
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
-        temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature", visible=False) # hide it because of the dynamic temp
+        temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature", visible=False)  # Hide it because of the dynamic temp
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
-    
-   
 
-    tmp = gr.Textbox(visible=True, value="", label = 'Feedback Status') 
+    tmp = gr.Textbox(visible=True, value="", label='Feedback Status') 
     chat_history = gr.Chatbot(label="Chat")
 
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
     
     cancel_button = gr.Button("Cancel Inference", variant="danger")
     index_state = gr.State(value=[])
+
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model, persona_dropdown], chat_history)
     chat_history.like(vote, [tmp, index_state], [tmp, index_state])
