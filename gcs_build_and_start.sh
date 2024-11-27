@@ -1,10 +1,15 @@
 #!/bin/bash
 
-# Set variables (optional)
 SERVICE_NAME="cs553app"
 IMAGE="gbenderiya/cs553_assignment1:latest"
 PORT=7860
 REGION="us-east1"
+
+# Build the container
+docker build -t gbenderiya/cs553_assignment1 . 
+
+# Push the container to docker hub
+docker push gbenderiya/cs553_assignment1
 
 # Deploy to Cloud Run
 gcloud run deploy $SERVICE_NAME \
