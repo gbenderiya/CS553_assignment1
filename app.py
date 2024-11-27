@@ -22,7 +22,7 @@ MEMORY_USAGE = Gauge('memory_usage_bytes', 'Memory usage of the application')
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+# pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -74,7 +74,7 @@ def respond(
             history = []
 
         dynamic_temperature = adjust_temperature(message) if temperature is None else temperature
-    
+        """
         if use_local_model:
             # Local inference
             messages = [{"role": "system", "content": system_message}]
@@ -86,6 +86,7 @@ def respond(
             messages.append({"role": "user", "content": message})
 
             response = ""
+            
             for output in pipe(
                 messages,
                 max_new_tokens=max_tokens,
@@ -102,30 +103,31 @@ def respond(
                 yield history + [(message, response)]  # Yield history + new response
 
         else:
+        """
             # API-based inference
-            messages = [{"role": "system", "content": system_message}]
-            for val in history:
-                if val[0]:
-                    messages.append({"role": "user", "content": val[0]})
-                if val[1]:
-                    messages.append({"role": "assistant", "content": val[1]})
-            messages.append({"role": "user", "content": message})
+        messages = [{"role": "system", "content": system_message}]
+        for val in history:
+            if val[0]:
+                messages.append({"role": "user", "content": val[0]})
+            if val[1]:
+                messages.append({"role": "assistant", "content": val[1]})
+        messages.append({"role": "user", "content": message})
 
-            response = ""
-            for message_chunk in client.chat_completion(
-                messages,
-                max_tokens=max_tokens,
-                stream=True,
-                temperature=dynamic_temperature,
-                top_p=top_p,
+        response = ""
+        for message_chunk in client.chat_completion(
+            messages,
+            max_tokens=max_tokens,
+            stream=True,
+            temperature=dynamic_temperature,
+            top_p=top_p,
             ):
-                if stop_inference:
-                    response = "Inference cancelled."
-                    yield history + [(message, response)]
-                    return
-                token = message_chunk.choices[0].delta.content
-                response += token
-                yield history + [(message, response)]  # Yield history + new response
+            if stop_inference:
+                response = "Inference cancelled."
+                yield history + [(message, response)]
+                return
+            token = message_chunk.choices[0].delta.content
+            response += token
+            yield history + [(message, response)]  # Yield history + new response
         
         SUCCESSFUL_REQUESTS.inc()  # Increment successful request counter
     except Exception as e:
@@ -202,7 +204,7 @@ with gr.Blocks(css=custom_css) as demo:
     
     with gr.Row():
         persona_dropdown = gr.Dropdown(choices=list(personas.keys()), value="Friendly", label="Select Persona")
-        use_local_model = gr.Checkbox(label="Use Local Model", value=False) 
+        # use_local_model = gr.Checkbox(label="Use Local Model", value=False) 
         system_message = gr.Textbox(value=personas["Friendly"], label="System message", interactive=True)
         persona_dropdown.change(update_sys_msg, inputs=persona_dropdown, outputs=system_message)
 
@@ -220,7 +222,7 @@ with gr.Blocks(css=custom_css) as demo:
     index_state = gr.State(value=[])
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model, persona_dropdown], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, persona_dropdown], chat_history)
     chat_history.like(vote, [tmp, index_state], [tmp, index_state])
     cancel_button.click(cancel_inference)
 
